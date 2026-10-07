@@ -86,6 +86,18 @@ class ItemCreate(BaseModel):
         return value
 
 
+class ItemPatch(ItemCreate):
+    tipo: TipoItem | None = None
+    clube_selecao: str | None = Field(default=None, min_length=2, max_length=100)
+
+    @model_validator(mode="after")
+    def exige_obrigatorios_nao_nulos(self) -> "ItemPatch":
+        for campo in ("tipo", "clube_selecao"):
+            if campo in self.model_fields_set and getattr(self, campo) is None:
+                raise ValueError(f"{campo} não pode ser null.")
+        return self
+
+
 class ItemRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

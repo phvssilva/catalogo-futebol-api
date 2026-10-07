@@ -1,13 +1,20 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import func
 from sqlmodel import Session, select
 
 from app.database import get_session
 from app.models import Item
-from app.schemas import ItemCreate, ItemList, ItemRead, TipoItem, VersaoItem
+from app.schemas import (
+    ItemCreate,
+    ItemList,
+    ItemPatch,
+    ItemRead,
+    TipoItem,
+    VersaoItem,
+)
 
 router = APIRouter(prefix="/itens", tags=["itens"])
 
@@ -90,3 +97,72 @@ def consultar_item(
     if item is None:
         raise HTTPException(status_code=404, detail="Item não encontrado")
     return item
+
+
+@router.put("/{item_id}", response_model=ItemRead)
+def substituir_item(
+    item_id: int,
+    dados: ItemCreate,
+    session: Annotated[Session, Depends(get_session)],
+) -> Item:
+    item = session.get(Item, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item não encontrado")
+
+    campos = dados.model_dump(
+        exclude={"id", "criado_em", "atualizado_em"},
+    )
+    for campo, valor in campos.items():
+        setattr(item, campo, valor)
+
+    agora = datetime.now(UTC)
+    if agora <= item.atualizado_em:
+        agora = item.atualizado_em + timedelta(microseconds=1)
+    item.atualizado_em = agora
+
+    session.add(item)
+    session.commit()
+    session.refresh(item)
+    return item
+
+
+@router.patch("/{item_id}", response_model=ItemRead)
+def atualizar_item(
+    item_id: int,
+    dados: ItemPatch,
+    session: Annotated[Session, Depends(get_session)],
+) -> Item:
+    item = session.get(Item, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item não encontrado")
+
+    campos = dados.model_dump(
+        exclude_unset=True,
+        exclude={"id", "criado_em", "atualizado_em"},
+    )
+    for campo, valor in campos.items():
+        setattr(item, campo, valor)
+
+    agora = datetime.now(UTC)
+    if agora <= item.atualizado_em:
+        agora = item.atualizado_em + timedelta(microseconds=1)
+    item.atualizado_em = agora
+
+    session.add(item)
+    session.commit()
+    session.refresh(item)
+    return item
+
+
+@router.delete("/{item_id}", status_code=204)
+def excluir_item(
+    item_id: int,
+    session: Annotated[Session, Depends(get_session)],
+) -> Response:
+    item = session.get(Item, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item não encontrado")
+
+    session.delete(item)
+    session.commit()
+    return Response(status_code=204)
