@@ -7,9 +7,7 @@ from sqlmodel import Session, create_engine
 
 def _create_engine() -> Engine:
     database_url = os.getenv("DATABASE_URL", "sqlite:///./catalogo.db")
-    connect_args = (
-        {"check_same_thread": False} if database_url.startswith("sqlite") else {}
-    )
+    connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
     return create_engine(database_url, connect_args=connect_args)
 
 
