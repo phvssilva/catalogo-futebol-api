@@ -58,9 +58,7 @@ class ItemCreate(BaseModel):
             texto = dados.get(campo)
             if isinstance(texto, str):
                 texto = texto.strip()
-                dados[campo] = (
-                    texto if campo in {"tipo", "clube_selecao"} or texto else None
-                )
+                dados[campo] = texto if campo in {"tipo", "clube_selecao"} or texto else None
 
         return dados
 
@@ -77,9 +75,7 @@ class ItemCreate(BaseModel):
             hostname = partes.hostname
             port = partes.port
         except ValueError as error:
-            raise ValueError(
-                "A URL precisa ser válida e usar http ou https."
-            ) from error
+            raise ValueError("A URL precisa ser válida e usar http ou https.") from error
 
         if (
             partes.scheme not in {"http", "https"}
@@ -106,3 +102,10 @@ class ItemRead(BaseModel):
     foto_url: str | None
     criado_em: datetime
     atualizado_em: datetime
+
+
+class ItemList(BaseModel):
+    itens: list[ItemRead]
+    total: int
+    pagina: int
+    tamanho: int
