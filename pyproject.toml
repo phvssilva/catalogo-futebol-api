@@ -1,11 +1,45 @@
+# ---------------------------------------------------------------
+# Configuracao do projeto: ruff (lint + format), pytest e cobertura
+# ---------------------------------------------------------------
+
 [tool.ruff]
-line-length = 100
+line-length = 88
+# Ajuste conforme o resultado de "python --version":
+# 3.10 -> "py310" | 3.11 -> "py311" | 3.12 -> "py312" | 3.13 -> "py313"
 target-version = "py311"
+extend-exclude = [".venv", "build", "dist"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP"]
+select = [
+    "E",   # pycodestyle (erros)
+    "W",   # pycodestyle (avisos)
+    "F",   # pyflakes (imports nao usados, variaveis indefinidas)
+    "I",   # isort (ordem dos imports)
+    "B",   # flake8-bugbear (armadilhas comuns)
+    "UP",  # pyupgrade (sintaxe moderna do Python)
+    "N",   # pep8-naming (nomes)
+]
+ignore = [
+    "B008",  # FastAPI usa Depends(...) como valor padrao de argumento
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "--cov=app --cov-report=term-missing"
+addopts = "-ra --cov=app --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
