@@ -2,7 +2,9 @@
 
 Este documento registra como o LLM foi usado no desenvolvimento da **Catálogo de Futebol API**: prompts enviados, resultados obtidos, correções feitas pelo autor, ocorrências e limitações observadas. Ele é a evidência do processo de desenvolvimento assistido por LLM.
 
-> **Última atualização:** 2026-10-07 (marcos M2 a M5 concluídos, CI verde). Campos marcados com **`[preencher]`** dependem de informação que só o autor tem.
+> **Última atualização:** 2026-10-07 (marcos M2 a M5 concluídos, CI verde; M6 em andamento com README e CHANGELOG gerados). Campos marcados com **`[preencher]`** dependem de informação que só o autor tem.
+>
+> **Nota de transparência:** este registro foi redigido com apoio do LLM, a partir do histórico das conversas, e deve ser revisado pelo autor. O LLM não tem acesso ao computador do autor, então resultados de execuções locais (testes, commits, releases) só constam aqui quando o autor os informou.
 
 ## 1. Informações gerais
 
@@ -137,7 +139,9 @@ Em seguida, o autor perguntou quantas horas seriam necessárias para finalizar o
 
 **Correções do autor:** o autor decidiu **não** fazer os itens opcionais (Docker e endpoint de IA) nesta versão.
 
-**Tempo real gasto:** [preencher, para comparar com a estimativa de 8 a 12 h]
+**Reestimativa:** após concluir o M5 (CI verde), o autor pediu a atualização do tempo restante. O LLM estimou **2 a 3 horas** para o fechamento (revisão do README e CHANGELOG, verificação final, tag e release, e preenchimento deste registro).
+
+**Tempo real gasto:** [preencher, para comparar com a estimativa de 8 a 12 h feita após o M2 e com a reestimativa de 2 a 3 h feita após o M5]
 
 **Avaliação:** [preencher]
 
@@ -495,16 +499,55 @@ para eu rodar: pytest, ruff check . e ruff format .
 
 ---
 
-### Interação 15: Marco M6, README, CHANGELOG e release v1.0.0
+### Interação 15: Marco M6, README e CHANGELOG da v1.0.0
+
+| | |
+|---|---|
+| **Data** | 2026-10-07 |
+| **Fase** | Fechamento |
+| **Objetivo** | Gerar o README completo e o CHANGELOG da versão 1.0.0; atualizar a estimativa de tempo restante |
+| **Commit relacionado** | `docs: adiciona README completo e CHANGELOG da v1.0.0` [preencher: confirmar que o commit foi feito] |
+
+**Solicitação (resumo):**
+> Vamos para a próxima etapa. Atualiza para mim o tempo restante para finalizar o projeto.
+
+**Resultado:**
+
+- `README.md` (356 linhas): objetivo, funcionalidades, tecnologias, estrutura do repositório, instalação (Windows e Linux/macOS), execução, tabela de endpoints, campos do item, exemplos de requisição (`curl` e PowerShell), filtros e paginação, testes, CI, seção sobre o uso de LLM, limitações, trabalhos futuros, versões e licença.
+- `CHANGELOG.md` (41 linhas), no formato Keep a Changelog, com a versão 1.0.0.
+- Reestimativa do tempo restante: **2 a 3 horas**.
+
+**Validação feita pelo LLM antes da entrega:** o LLM subiu a API em um ambiente limpo e executou os exemplos do README. `/health`, criação, listagem com filtros, consulta, PUT, PATCH, DELETE, `404` e `422` responderam como o documento descreve. Os exemplos em **PowerShell não foram executados**, porque o ambiente do LLM não tem PowerShell. Isso foi informado ao autor.
+
+**Suposições do LLM que o autor deve confirmar:**
+
+- Links com o marcador `SEU_USUARIO` (badge do CI, clonagem e releases), trocados pelo usuário do GitHub. O LLM sugeriu `phvssilva`, inferido das URLs de imagens cadastradas pelo autor.
+- Estrutura de pastas e mensagens de erro descritas no README.
+- Indicação de Python 3.14 como versão usada e testada.
+- Data `2026-10-07` no CHANGELOG, a ajustar se a release sair em outra data.
+
+**Correções do autor:** [preencher]. O primeiro comando para trocar `SEU_USUARIO` falhou (ocorrência O7).
+
+**Avaliação:** 🔧 Ajuste. Os arquivos estavam corretos, mas a instrução de uso falhou na primeira tentativa.
+
+---
+
+### Interação 16: Marco M6, tag e release v1.0.0
 
 | | |
 |---|---|
 | **Data** | [preencher] |
 | **Fase** | Fechamento |
-| **Objetivo** | README completo com badge do CI, `CHANGELOG.md`, tag `v1.0.0` e GitHub Release |
-| **Commit relacionado** | [preencher] |
+| **Objetivo** | Verificação final, tag `v1.0.0` e GitHub Release |
+| **Commit/tag relacionado** | tag `v1.0.0` [preencher] |
 
-*(Pendente. Registrar prompt, resultado e correções.)*
+**Solicitação (resumo):** [preencher]
+
+**Resultado:** [preencher: confirmar verificação final (70 testes, `ruff`, CI verde), criação da tag e publicação da release]
+
+**Correções do autor:** [preencher]
+
+**Avaliação:** [preencher]
 
 ---
 
@@ -518,6 +561,9 @@ para eu rodar: pytest, ruff check . e ruff format .
 | O4 | M3 | O autor relatou que o `GET /itens` "funcionava apenas para id" no Swagger | Causa provável: servidor antigo ainda em execução ou página em cache. Não foi comprovada | Reinício do servidor. A listagem respondeu `200` com os 4 itens | 🔧 Ajuste |
 | O5 | M4 | CI vermelho com 19 testes falhando (`405 Method Not Allowed`) | `app/routes/itens.py` e `app/schemas.py` ficaram sem commit: o GitHub tinha os testes do M4, mas não a implementação. O código local estava correto | Commit e `push` dos dois arquivos. CI ficou verde | ❌ Erro de processo (esquecimento de commit) |
 | O6 | M2 | O agente do VS Code não conseguiu executar `pytest` nem `ruff` | A execução de comandos foi negada no ambiente do agente | O autor executou os comandos manualmente no terminal | 🔧 Ajuste |
+| O7 | M6 | O comando em PowerShell para trocar `SEU_USUARIO` no `CHANGELOG.md` falhou: o arquivo não existia na pasta do projeto | Os arquivos entregues pelo LLM estavam na pasta de downloads, e a instrução presumiu que já estavam na raiz do projeto. O comando de substituição em PowerShell também é frágil para quem não programa. O comando que falhou pode ter deixado um arquivo vazio | Cópia dos arquivos para a raiz do projeto, conferência por número de linhas (README 356, CHANGELOG 41) e troca do texto pelo VS Code (Ctrl + H) | 🔧 Ajuste (instrução do LLM) |
+
+**Observação sobre O7:** o LLM não enxerga o computador do autor, então falhas ao mover arquivos entre pastas só aparecem quando o autor relata o erro. A mitigação adotada foi pedir conferências objetivas (contagem de linhas e tamanho dos arquivos) depois de cada cópia.
 
 **Observação sobre O5:** a mensagem recebida como diagnóstico automático (de origem não identificada) afirmava que os endpoints não estavam implementados ou registrados. Isso estava correto para o código **no repositório**, mas não indicava a causa real (commit ausente). A conferência com `git status` foi o que revelou o motivo.
 
@@ -567,13 +613,13 @@ caso, explique).
 | M3: listagem e filtros | 48 | 89% | 0 relatadas | O2, O3, O4 |
 | M4: atualização e exclusão | 67 | [preencher] | [preencher] | O5 |
 | M5: health e CI | 70 | 89,18% na 1ª execução do CI (com 19 falhas); [preencher] na execução verde | [preencher] | O5 |
-| M6: documentação e release | — | — | — | — |
+| M6: documentação e release | 70 (sem testes novos) | — | — | O7 |
 
 | Indicador | Valor |
 |---|---|
 | Testes automatizados no final | 70 |
 | Critérios de aceite cobertos | CA01 a CA39 por testes automatizados; CA40 e CA41 verificados pelo CI |
-| Tempo estimado pelo LLM | 8 a 12 horas |
+| Tempo estimado pelo LLM | 8 a 12 horas (após o M2); 2 a 3 horas restantes (reestimativa após o M5) |
 | Tempo real gasto | [preencher] |
 
 ## 8. Reflexão final
@@ -586,6 +632,7 @@ caso, explique).
 - Testes escritos antes do código e validados com implementação de referência e mutação, o que levou os marcos M2 a M4 a passarem na primeira execução com o código do agente.
 - Roteiro passo a passo para um autor não programador.
 - Verificação de versões atuais (ações do GitHub) em fonte oficial, em vez de depender da memória.
+- README com exemplos conferidos na prática: o LLM executou a API em ambiente limpo e testou as requisições antes de entregar o documento.
 
 **Complemento do autor:** [preencher]
 
@@ -594,6 +641,8 @@ caso, explique).
 - Roteiro com `git add .` que levou o banco local ao repositório (O3).
 - Configuração de `line-length` divergente entre a especificação e o projeto (O2).
 - Agente do VS Code sem capacidade de executar comandos e com testes próprios diferentes dos validados (O6).
+- Instrução que presumiu arquivos já copiados para a pasta do projeto, e comando de substituição de texto frágil (O7).
+- Exemplos em PowerShell entregues sem execução, por limitação do ambiente do LLM.
 
 **Complemento do autor:** [preencher]
 
@@ -615,13 +664,14 @@ caso, explique).
 
 - Dependência de comandos copiados do LLM, com risco de esquecer etapas do roteiro (O5).
 - Dificuldade de distinguir problemas de código, de configuração e de ambiente (O2, O4).
+- Mover arquivos entre a pasta de downloads e o projeto é uma etapa simples para quem programa, mas fonte de erro para um não programador (O7).
 
 **Complemento do autor:** [preencher]
 
 ### 8.6 Limitações do produto e trabalhos futuros
 
 - Filtro de texto sem tratamento de acentos e sem padronização de nomes de clubes.
-- Sem autenticação, upload de fotos nem Docker (opcionais não implementados).
+- Sem autenticação, upload de fotos nem Docker (opcionais não implementados, por decisão do autor).
 - Cadastro assistido por IA (envio de foto e sugestão de campos) previsto como evolução, com avaliação de acurácia por campo.
 
 ### 8.7 Lições aprendidas e boas práticas
